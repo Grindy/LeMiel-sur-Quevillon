@@ -1,0 +1,409 @@
+@import "tailwindcss";
+
+
+@theme {
+  --color-miel: #fddd4a;
+  --color-ambre: #f9ae18;
+  --color-brule: #e57f2e;
+  --color-encre: #111111;
+  --color-aile: #c9e1e8;
+}
+
+:root {
+  --largeur-colonne: 780px;
+}
+
+.entete-logo {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.entete-logo:hover {
+  transform: scale(1.1);
+}
+
+.accueil,
+.entete-contenu {
+  max-width: var(--largeur-colonne);
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+html.texte-gros {
+  font-size: 20px;
+  --largeur-colonne: 1000px;
+}
+
+/* header */
+.entete {
+  background-color: var(--color-ambre);
+  border-bottom: 4px solid var(--color-encre);
+}
+
+.entete-contenu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+}
+
+.entete-gauche {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.entete-titre {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--color-encre);
+}
+
+.entete-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Boutons de navigation */
+.btn-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 2rem;
+  background-color: var(--color-brule);
+  color: var(--color-encre);
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.btn-nav:hover {
+  background-color: var(--color-brule);
+}
+
+.btn-nav-actif {
+  background-color: var(--color-encre);
+  color: var(--color-miel);
+}
+
+/* Bouton A+ / A- (rond) */
+.btn-taille {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 3px solid var(--color-encre);
+  border-radius: 50%;
+  background-color: var(--color-brule);
+  color: var(--color-encre);
+  font-weight: 800;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.btn-taille:hover {
+  background-color: var(--color-miel);
+}
+
+/* Footer */
+
+.pied {
+  padding: 0.5rem 1rem;
+  background-color: var(--color-ambre);
+  /* Bande noire au-dessus du footer (4px), comme celle du header */
+  border-top: 4px solid var(--color-encre);
+  text-align: center;
+  color: var(--color-encre);
+}
+
+/* Le conteneur qui contient Header + contenu + Footer */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Le contenu principal prend tout l'espace libre */
+/* Le gris pâle va d'un bord à l'autre, sans espace au-dessus */
+
+/* ---------- Page d'accueil ---------- */
+
+/* Le gris pâle va d'un bord à l'autre, sans espace au-dessus */
+.contenu {
+  flex: 1;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #eeeeee;
+}
+
+.accueil {
+  margin: 0 auto;
+  padding: 0;
+  background-color: white;
+}
+
+/* Image pleine largeur */
+.accueil-banniere {
+  position: relative;
+  width: 100%;
+  height: 15rem;
+  background-color: var(--color-aile);
+}
+
+.accueil-banniere-img {
+  object-fit: cover;
+}
+
+/* Conteneur des sections */
+.accueil-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1.5rem 1rem;
+}
+
+.accueil-titre {
+  margin-bottom: 0.5rem;
+  padding-left: 1rem;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--color-encre);
+}
+
+/* "Notre mission" est à droite */
+.accueil-titre-droite {
+  text-align: right;
+  padding-left: 0;
+  padding-right: 1rem;
+}
+
+/* Les divs gris pâles */
+.accueil-boite {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 10rem;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  background-color: #eeeeee;
+  color: var(--color-encre);
+}
+
+.accueil-bouton {
+  align-self: flex-end;
+  margin-top: auto;
+}
+
+
+.icone-abeille,
+.icone-marche {
+  width: 3rem;
+  height: 3rem;
+  fill: currentColor; /* prend la couleur du texte du bouton */
+}
+
+/* Les deux grosses icônes (les formes viennent du <path> dans le JSX) */
+.icone-abeille,
+.icone-marche {
+  width: 2rem;
+  height: 2rem;
+  fill: currentColor; /* même couleur que le texte du bouton */
+}
+
+/* Au survol du bouton, l'icône change avec lui */
+.btn-nav:hover,
+.btn-nav:hover {
+  transform: scale(1.1);
+  color: #fddd4a;
+}
+
+.btn-taille:hover {
+  color: black;
+  transform: scale(1.1);
+}
+
+h2 {
+  font-weight: bold !important;
+  color: var(--color-brule) !important;
+}
+
+/* ---------- Page Nos abeilles ---------- */
+
+/* La boîte grise devient une ligne : image + texte */
+.boite-image {
+  flex-direction: row;
+  align-items: center;
+  gap: 1.5rem;
+  position: relative;
+}
+
+/* Image à droite : on inverse l'ordre */
+.boite-image-inverse {
+  flex-direction: row-reverse;
+}
+
+/* Toutes les images ont la même taille */
+.boite-image-photo {
+  position: relative;
+  flex-shrink: 0;
+  width: 12rem;
+  height: 12rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: var(--color-aile); /* en attendant la vraie photo */
+}
+
+.boite-image-texte {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Sur petit écran : l'image passe au-dessus du texte */
+@media (max-width: 600px) {
+  .boite-image,
+  .boite-image-inverse {
+    flex-direction: column;
+  }
+
+  .boite-image-photo {
+    width: 100%;
+  }
+}
+
+/* ---------- Page Nos produits ---------- */
+
+.stock-oui {
+  color: #2e7d32; /* vert */
+  font-weight: bold;
+}
+
+.stock-non {
+  color: #c62828; /* rouge */
+  font-weight: bold;
+}
+
+/* ------ badge -------*/
+
+.badge {
+  position: absolute;
+  top: -0.75rem;
+  right: -0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  border: 2px solid var(--color-encre);
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--color-encre);
+}
+
+.badge-nouveau {
+  background-color: var(--color-miel);
+}
+
+.badge-urgent {
+  background-color: var(--color-brule);
+}
+
+.badge:hover {
+  transform: scale(1.1);
+}
+
+/*------- minijeu -----*/
+
+/* ---------- Mini-jeu (toast) ---------- */
+
+.jeu-toast {
+  position: fixed;
+  top: 12rem;
+  right: 10rem;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 20rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 4px solid var(--color-brule);
+  background-color: var(--color-miel);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.jeu-toast-titre {
+  font-weight: bold;
+  color: var(--color-encre);
+}
+
+.jeu-toast-texte {
+  font-size: 0.9rem;
+  color: var(--color-encre);
+}
+
+.jeu-toast-input {
+  padding: 0.4rem;
+  border: 2px solid var(--color-encre);
+  border-radius: 0.25rem;
+  background-color: var(--color-aile);
+}
+
+
+
+.jeu-toast-bouton {
+  align-self: center;
+}
+
+/* ---------- Popup de résultat ---------- */
+
+.popup-fond {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.popup-boite {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 90%;
+  max-width: 24rem;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  background-color: white;
+  text-align: center;
+}
+
+.popup-titre {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--color-encre);
+}
+
+.popup-prix {
+  font-weight: bold;
+  color: var(--color-brule);
+}
+
+.popup-code {
+  font-family: monospace;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--color-encre);
+}
