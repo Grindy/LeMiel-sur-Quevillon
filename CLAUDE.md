@@ -23,7 +23,7 @@ Aucun framework de tests n'est configuré.
 
 - Next.js 16 (App Router) avec React 19 et le React Compiler activé (`reactCompiler: true` dans `next.config.ts`) — éviter la mémoïsation manuelle avec `useMemo`/`useCallback`.
 - Tailwind CSS v4 via `@tailwindcss/postcss`. Les couleurs de la marque sont définies dans `@theme` dans `src/app/globals.css` (`miel`, `ambre`, `brule`, `encre`, `aile`), mais la majorité du style est écrite à la main sous forme de classes CSS sémantiques dans `globals.css` plutôt qu'avec des utilitaires Tailwind.
-- Prisma 7 + PostgreSQL sur Neon via `@prisma/adapter-neon`. `bcrypt` est installé pour l'authentification à venir.
+- Prisma 7 + PostgreSQL via `@prisma/adapter-pg` (`PrismaPg`). `bcrypt` est installé pour l'authentification à venir.
 - Alias de chemin `@/*` → `src/*`.
 
 ## Architecture
@@ -35,10 +35,10 @@ Aucun framework de tests n'est configuré.
 **Bouton d'accessibilité pour la taille du texte :** `Header` ajoute/retire la classe `texte-gros` sur `<html>`; `globals.css` agrandit les polices sous `html.texte-gros`.
 
 **Couche base de données (en cours) :**
-- `src/lib/prisma.ts` — `PrismaClient` singleton avec l'adaptateur Neon, mis en cache sur `globalThis` hors production, marqué `import "server-only"` (ne l'importer que depuis des Server Components / server actions / route handlers, jamais depuis l'arborescence client de `page.tsx`).
+- `src/lib/prisma.ts` — `PrismaClient` singleton avec l'adaptateur `PrismaPg`, mis en cache sur `globalThis` hors production, marqué `import "server-only"` (ne l'importer que depuis des Server Components / server actions / route handlers, jamais depuis l'arborescence client de `page.tsx`).
 - `prisma.config.ts` — configuration Prisma 7 : lit `DATABASE_URL` depuis `.env` via `dotenv/config`; l'URL de la source de données est définie ici, pas dans `schema.prisma`.
 - `prisma/schema.prisma` ne contient présentement **aucun modèle** et utilise le générateur `prisma-client-js` (`.gitignore` prévoit déjà `/src/generated/prisma` pour le nouveau générateur `prisma-client`).
 
 ## Environnement
 
-`.env` (ignoré par git) doit définir `DATABASE_URL` (chaîne de connexion Postgres de Neon).
+`.env` (ignoré par git) doit définir `DATABASE_URL` (chaîne de connexion Postgres; pour Neon, inclure `?sslmode=require`).

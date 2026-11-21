@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 
 type AccueilProps = {
@@ -43,7 +45,7 @@ export default function Accueil({ onNavigate }: AccueilProps) {
         <section className="accueil-section">
           <h2 className="accueil-titre">Nos produits</h2>
           <div className="accueil-boite">
-            <p className="mb-6">L'authenticité est au coeur de notre démarche et de nos produits. Ainsi donc, depuis le tout début nous offrons un miel nordique de qualité, vendu localement sous forme de miel brut.
+            <p className="mb-6">L’authenticité est au coeur de notre démarche et de nos produits. Ainsi donc, depuis le tout début nous offrons un miel nordique de qualité, vendu localement sous forme de miel brut.
                 Nous nous efforçons également de créer de nouveaux produits à valeur ajoutée. Cette année nous sommes fiers de pouvoir offrir des produits de caramel à base de miel ainsi que du miel barraté, en espérant que ces produits soient à la hauteur de la matière brut que nos abeilles produisent!
             </p>
 

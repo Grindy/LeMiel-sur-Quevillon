@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 
 const produits = [
@@ -57,7 +59,7 @@ export default function Produits() {
       </section>
 
       <div className="accueil-sections">
-        <h3>N'oubliez pas de passer à la miellerie pour faire vos achats et nous dire un petit bonjour! Nous travaillons toujours sur la vente en ligne pour la prochaine saison! Au plaisir de vous voir!</h3>
+        <h3>N’oubliez pas de passer à la miellerie pour faire vos achats et nous dire un petit bonjour! Nous travaillons toujours sur la vente en ligne pour la prochaine saison! Au plaisir de vous voir!</h3>
         {produits.map((produit) => (
           <section key={produit.nom} className="accueil-section">
             <h2 className="accueil-titre">{produit.nom}</h2>
