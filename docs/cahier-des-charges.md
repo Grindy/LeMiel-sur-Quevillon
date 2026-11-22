@@ -356,7 +356,7 @@ Tailles : **S** (petite, moins d'une journée), **M** (moyenne, deux ou trois jo
 | US-05 | client | voir un message clair si ma carte est refusée, afin de réessayer avec une autre carte. | Must | S |
 | US-06 | administrateur | valider que le client a une adresse de Lebel-sur-Quévillon, afin de pouvoir lui livrer un produit physique. | Must | S |
 | US-07 | administrateur | qu'une copie de la facture soit envoyée à une adresse email consultée par le bénévole en charge des livraisons, afin qu'il puisse effectuer la livraison des produits. | Must | S |
-| US-08 | administrateur | créer et publier des produits avec leur quantité disponible, prix, format, statut taxable, description et autres informations, afin de pouvoir les rendre disponibles à la vente. | Must | M |
+| US-08 | administrateur | créer et publier des produits avec leur nom, quantité disponible, prix, format, statut taxable, description et autres informations, afin de pouvoir les rendre disponibles à la vente. | Must | M |
 | US-09 | administrateur | catégoriser mes produits selon leur statut de taxation, afin de ne pas charger les taxes sur les produits d'épicerie. | Must | S |
 | US-10 | administrateur | que la vente d'un item soit bloquée si le produit n'est plus en stock, afin d'éviter des ventes qui devront être remboursées. | Must | S |
 | US-11 | client | m'abonner au plan "Amis du Rûcher", afin de soutenir un projet local. | Must | M |
@@ -377,72 +377,99 @@ Les **Must** (US-01 à US-10) représentent environ 60 % de l'effort estimé ; i
 
 ### 6.2 Critères d'acceptation
 
-**US-01 — Voir les événements à venir**
-1. **Étant donné** des événements publiés à venir, **quand** j'ouvre le catalogue sans être connecté, **alors** je vois leur titre, leur date, leur lieu et leur prix avant taxes.
-2. **Étant donné** un événement passé, en brouillon ou annulé, **quand** j'ouvre le catalogue, **alors** il n'apparaît pas.
+**US-01 — Voir les produits disponibles avec leur prix avant taxes**
+1. **Étant donné** des produits sont disponibles pour la vente, **quand** j'ouvre le catalogue sur le site, **alors** je vois les informations des produits: leur nom, description, prix unitaire avant taxes, format, quantité, saison et année.
+2. **Étant donné** un produit qui n'est plus en-stock depuis 30 jours et moins, **quand** j'ouvre le catalogue, **alors** il apparait avec une mention "Produit épuisé" et il est impossible de l'ajouter au panier.
+3. **Étant donné** un produit qui n'est plus en-stock depuis plus de 30 jours, **quand** j'ouvre le catalogue, **alors** il n'apparaît pas.
 
-**US-02 — Acheter un billet et payer en ligne**
-1. **Étant donné** que je suis connecté et que l'événement a des places, **quand** je paie avec une carte valide, **alors** ma commande passe à « payée », les places sont retirées et je suis redirigé vers la page de confirmation.
-2. **Étant donné** qu'il reste 1 place, **quand** deux participants paient en même temps, **alors** un seul obtient la place et l'autre voit « Complet » avant d'être débité.
-3. **Étant donné** que j'ai commencé un paiement, **quand** j'abandonne pendant plus de 30 minutes, **alors** ma commande est annulée et les places sont libérées.
+**US-02 — Acheter un item physique et payer en ligne sans créer de compte**
+1. **Étant donné** que je suis sur le site et que mon panier contient des produits, **quand** je paie avec une carte valide, **alors** ma commande passe à « payée », les places produits sont retirés et je suis redirigé vers la page de confirmation.
+2. **Étant donné** qu'il reste 1 produit, **quand** deux clients paient en même temps, **alors** un seul obtient le produit et l'autre voit « Produit épuisé, désolé » avant d'être débité.
+3. **Étant donné** que j'ai commencé un paiement, **quand** j'abandonne pendant plus de 30 minutes, **alors** ma commande est annulée et les produits sont libérées.
 4. **Étant donné** un paiement réussi, **quand** Stripe envoie deux fois le même webhook, **alors** une seule commande est payée et un seul reçu est envoyé.
 
-**US-03 — Voir le total taxes comprises**
-1. **Étant donné** un billet à 40,00 $, **quand** j'affiche le récapitulatif, **alors** je vois TPS 2,00 $, TVQ 3,99 $ et total 45,99 $.
-2. **Étant donné** un récapitulatif affiché, **quand** j'arrive chez Stripe, **alors** le montant est exactement le même.
+**US-03 — Voir le total taxes comprises avant de payer**
+1. **Étant donné** un produit taxable à 8,00 $, **quand** j'affiche le récapitulatif, **alors** je vois TPS 0,40 $, TVQ 0,80 $ et total 9,20 $.
+2. **Étant donné** un produit exempt de taxes à 20,00 $, **quand** j'affiche le récapitulatif, **alors** je vois TPS 0,00 $, TVQ 0,00 $ et total 20,00 $.
+3. **Étant donné** un récapitulatif affiché, **quand** j'arrive chez Stripe, **alors** le montant est exactement le même.
+4. **Étant donné** que le total brut des ventes pour l'année est égal ou inférieur à 30000$, **quand** j'affiche le récapitulatif **alors** les taxes ne sont pas chargée au client, la TPS et la TVQ affichent tous deux 0,00 $.
 
-**US-04 — Recevoir un reçu par courriel**
-1. **Étant donné** une commande payée, **quand** le webhook de paiement est traité, **alors** je reçois un courriel avec le numéro de commande, le détail des billets, la TPS, la TVQ et le total.
+**US-04 —  Recevoir un reçu détaillé par courrie**
+1. **Étant donné** une commande payée, **quand** le webhook de paiement est traité, **alors** je reçois un courriel avec le numéro de commande, le détail des produits achetés, la TPS, la TVQ, le total et l'adresse de livraison.
 2. **Étant donné** un webhook reçu deux fois, **quand** il est traité, **alors** je ne reçois qu'un seul reçu.
 
 **US-05 — Message clair si la carte est refusée**
 1. **Étant donné** la carte de test `4000 0000 0000 9995`, **quand** je paie, **alors** je vois « Fonds insuffisants, essayez une autre carte » et aucune commande n'est payée.
 2. **Étant donné** la carte de test `4000 0027 6000 3184`, **quand** j'échoue l'authentification, **alors** je reviens au récapitulatif avec un message.
 
-**US-06 — Retrouver mes billets**
-1. **Étant donné** une commande payée, **quand** j'ouvre « Mes billets », **alors** je vois l'événement, la date, le type de billet et le prix payé.
-2. **Étant donné** que je n'ai aucun billet, **quand** j'ouvre « Mes billets », **alors** je vois « Vous n'avez pas encore de billet » et un lien vers le catalogue.
+**US-06 - Valider que le client a une adresse de Lebel-sur-Quévillon**
+1. **Étant donné** le client entre une adresse de livraison à Lebel-sur-Quévillon avec le code postal J0Y 1X0 **quand** il passe une commande  **alors** la commande est valide et le client peut poursuivre son achat.
+2. **Étant donné** le client entre une adresse de livraison qui n'est pas à Lebel-sur-Quévillon **quand** il passe une commande  **alors** la commande est refusée et un message "Seules les commandes locales sont acceptés, nous sommes désolés des inconvénients.".
+3. **Étant donné** le client entre des informations de livraison sans majuscules ou sans espaces (ex: j0y1x0) **quand** il passe une commande  **alors** la commande est valide et le client peut poursuivre son achat.
 
-**US-07 — Créer et publier un événement**
-1. **Étant donné** que je suis organisateur, **quand** je crée un événement avec un titre, une date future, une capacité et un prix, **alors** il est enregistré en brouillon et je peux le publier.
-2. **Étant donné** un événement payant, **quand** j'essaie de le publier sans plan Pro valide, **alors** la publication est refusée avec un lien « Passer au plan Pro » (RM-06).
-3. **Étant donné** une date passée ou une capacité nulle, **quand** j'enregistre, **alors** un message indique le champ invalide.
+**US-07 — Une copie de la facture est envoyée à une adresse email consultée par le bénévole en charge des livraisons**
+1. **Étant donné** une commande payée, **quand** le webhook de paiement est traité, **alors** le bénévole en charge reçoit un courriel avec le numéro de commande, le détail des produits achetés, la TPS, la TVQ, le total et l'adresse de livraison.
+2. **Étant donné** un webhook reçu deux fois, **quand** il est traité, **alors** le bénévole reçoit un seul reçu.
 
-**US-08 — S'abonner au plan Pro**
-1. **Étant donné** que je suis organisateur sans abonnement, **quand** je m'abonne avec une carte valide, **alors** mon plan est « Pro (essai) », aucun montant n'est prélevé et la billetterie payante est débloquée.
-2. **Étant donné** un essai en cours, **quand** les 14 jours se terminent, **alors** 33,34 $ sont prélevés et je reçois une facture.
-3. **Étant donné** un abonnement déjà actif, **quand** je retourne à la page de tarifs, **alors** le bouton affiche « Gérer mon abonnement » et non « S'abonner ».
+**US-08 — Créer et publier des produits**
+1. **Étant donné** que je suis administrateur, **quand** je crée un produit avec un nom, quantité disponible, prix, format, statut taxable, description, saison, année et photo  **alors** il est enregistré en brouillon et je peux le publier.
+2. **Étant donné** que je suis administrateur, **quand** je consulte ma liste de produits, je peux activer la vente d'un produit brouillon **alors** son statut devient "en stock", il est affiché dans le catalogue et peut être acheté par les clients.
+3. **Étant donné** une quantité de stock de 0 ou moins, **quand** j'enregistre le nouveau produit, **alors** un message indique le champ invalide.
+4. **Étant donné** un statut taxable non spécifié, **quand** j'enregistre le nouveau produit, **alors** l'item est taxable par défaut.
+5. **Étant donné** un nom vide, **quand** j'enregistre le nouveau produit, **alors** un message indique le champ invalide.
+6. **Étant donné** une description vide, **quand** j'enregistre le nouveau produit, **alors** un message indique le champ invalide.
+7. **Étant donné** un format vide, **quand** j'enregistre le nouveau produit, **alors** un message indique le champ invalide.
 
-**US-09 — Gérer mon abonnement**
-1. **Étant donné** un abonnement actif, **quand** je clique sur « Gérer mon abonnement », **alors** j'arrive sur le portail client Stripe, où je peux changer ma carte ou annuler.
-2. **Étant donné** que j'annule, **quand** je reviens sur SymposiQ, **alors** je vois « Actif jusqu'au [date de fin de période] » et je garde l'accès Pro jusqu'à cette date (RM-09).
 
-**US-10 — Être averti d'un échec de paiement mensuel**
-1. **Étant donné** un abonnement actif avec la carte `4000 0000 0000 0341`, **quand** le renouvellement échoue, **alors** je reçois un courriel, une bannière apparaît et je garde l'accès Pro pendant 7 jours.
-2. **Étant donné** un abonnement en retard, **quand** je mets ma carte à jour et que le paiement passe, **alors** la bannière disparaît et le statut redevient actif.
-3. **Étant donné** un abonnement en retard, **quand** toutes les relances échouent, **alors** je reviens au plan Gratuit, mes ventes sont suspendues et les billets déjà vendus restent valides.
-
-**US-11 — Payer un tarif etudiant**
-1. **Étant donné** que mon courriel etudiant se termine par le domaine d'un etablissement d'enseignement, **quand** je choisis un billet étudiant **alors** le prix du billet coutera 20,00$ soit 23,00$ au total.
-2. **Étant donné** un courriel qui n'est pas celui d'un etablissement d'enseignement  **quand** je choisi un billet etudiant **alors** le tarif est refuse avec le message "Le tarif étudiant exige un courriel d'établissement d'enseignement".
-3. **Étant donné** un evenement sans tarif etudiant **quand** j'ouvre la page de cet evenement **alors** on cache l'option 'Etudiant'.
+**US-09 — Catégoriser mes produits selon leur statut de taxation**
+1. **Étant donné** un produit d'épicerie comme un pot de miel à 20,00 $, **quand** il a la statut non taxable  **alors** la TPS et la TVQ sur ce produit est de 0,00 $.
+2. **Étant donné** un produit comme des bonbons au miel à 8,00 $, **quand** il a le statut taxable **alors** la TPS est de 0,40 $, et la TVQ de 0,80 $ et total 9,20 $.
    
-**US-12 — Appliquer un code promo**
-1. **Étant donné** un code valide de 25% **quand** je l'applique a un billet de 40,00$ **alors** le récapitulatif affiche le rabais de 10,00$ et le prix du billet avant taxes à 30,00$ puis applique la TPS et la TVQ ce qui donne 34,49$.
-2. **Étant donné** un code expiré **quand** j'essai de l'appliquer a un billet **alors** on voit un message "Ce code a expiré" et le prix n'est pas modifié.
-3. **Étant donné** un code inexistant **quand** j'essaie d'appliquer a un billet **alors** on voit le message 'code invalide'.
-4. **Étant donné** qu'un code est deja appliqué **quand** je le saisis une seconde fois, **alors** le second est refusé (un seul code par commande).
-5. **Étant donné** un code dont le nombre maximal d'utilisations est atteint **quand** je l'applique, **alors** on voit un message 'Ce code n'est plus disponible' et le prix ne change pas.
+**US-10 — La vente d'un item soit bloquée si le produit n'est plus en stock**
+1. **Étant donné** un produit dont la quantité disponible est de 0 ou moins, **quand** le client visite le catalogue  **alors** Le produit ne peut pas être ajouté au panier, un badge « Épuisé » est affiché.
+2. **Étant donné** un produit dont il reste 1 seul exemplaire, **quand** le client tente d'ajouter le produit une seconde fois à son panier **alors** l'ajout au panier est refusé avec un message qui indique que "Le panier ne peut contenir plus d'exemplaires du produit que le stock n'en contient".
+
+**US-11 —  M'abonner au plan "Amis du Rûcher"**
+1. **Étant donné** que j'ai ajouté l'abonnement mensuel dans mon panier, **quand** je m'abonne avec une carte valide, **alors** mon plan est débité et mon adresse email est ajoutée à la liste des "Amis du Rûcher".
+2. **Étant donné** mon email est déjà lié à un abonnement actif, **quand** je l'inscris sur la page d'abonnement, **alors** le bouton affiche « Gérer mon abonnement » et envoie au portail Stripe plutôt que de permettre l'inscription.
+
+**US-12 — Gérer mon abonnement**
+1. **Étant donné** un abonnement actif, **quand** j'entre mon email et je clique sur « Gérer mon abonnement », **alors** j'arrive sur le portail client Stripe, où je peux changer ma carte ou annuler.
+2. **Étant donné** que l'annulation met fin immédiatement à l'abonnement, **quand** une nouvelle promotion est envoyée par l'administrateur **alors** je ne la reçoit plus par email.
+
+**US-13 — Être averti d'un échec de paiement mensuel**
+1. **Étant donné** un abonnement actif avec la carte `4000 0000 0000 0341`, **quand** le renouvellement échoue, **alors** je reçois un courriel et je garde le statut d'Ami du Rûcher pendant 7 jours.
+2. **Étant donné** un abonnement en retard, **quand** je mets ma carte à jour et que le paiement passe, **alors** le statut redevient actif.
+3. **Étant donné** un abonnement en retard, **quand** toutes les relances échouent, **alors** mon adresse courriel est retirée de la liste des "Amis du Rûcher" et je ne reçois plus d'offres et de communications de la mielerie.
+
+**US-14 et US-15 — Remboursement**
+1. **Étant donné** un produit acheté, **quand** je demande un remboursement, **alors** l'organisateur reçoit la demande.
+2. **Étant donné** une demande approuvée, **quand** le remboursement est effectué chez Stripe, **alors** la commande passe à « remboursée », les produits de la commande ne sont pas remis dans l'inventaire et je reçois un courriel.
+
+**US-16 — Voir les revenus de l'année combinés et par produit**
+1. **Étant donné** la fin de l'année 2026, **quand** je sors les statistiques de ventes pour l'année, **alors** je vois un rapport sous forme de liste détaillant sur chaque ligne le nom du produit, son format, le nombre vendu pour l'année, le prix unitaire, le prix total brut de tous les exemplaires vendus, si applicable la TPS et la TVQ appliquée au prix total brut de tous les exemplaires vendus. La dernière ligne donne le total des taxes récoltées pour la TPS et la TVQ ainsi que le total brut de tous les produits vendus dans l'année en dollars.
+2. **Étant donné** une année passée, **quand** je choisis l'an 2026, **alors** je vois un rapport pour les ventes faites du 1er janvier 2026 au 31 décembre 2026.
+3. **Étant donné** que je choisis l'année 2027, **quand** je choisis une année future, **alors** je vois un message demandant de saisir une année présente ou passée valide.
+4. **Étant donné** que je choisi l'année 2022, **quand** je choisis une année passée où le site n'était pas en opération, **alors** je vois un message demandant de saisir une autre année: "Choisissez une année à partir de 2026"
+
+
+**US-17 — Le premier 30000$ de ventes brut exclue les taxes**
+1. **Étant donné** l'OBNL a vendu 10000 $ brut dans l'année courante avant la transaction, **quand** le récapitulatif du client est affiché **alors** le montant de la TPS et de la TVQ indique 0,00 $ peu importe le statut taxable des items.
+2. **Étant donné** l'OBNL a vendu 30000 $ brut dans l'année courante avant la transaction, **quand** le récapitulatif du client est affiché **alors** le montant de la TPS et de la TVQ est calculé et affiché, selon le statut taxable des items dans son panier.
+3. **Étant donné** l'OBNL a vendu 29999 $ brut dans l'année courante avant la transaction, **quand** la commande du client fait excéder la limite de 30000 $ après sa transaction **alors** le montant de la TPS et de la TVQ est calculé et affiché, selon le statut taxable des items dans son panier.
+
+**US-18 — Recevoir des communications et des offres exclusives en tant qu'Ami du Rûcher**
+1. **Étant donné** que je suis un membre valide des Amis du Rûcher **quand** une promotion est envoyée par email à la liste des Amis du Rûcher, **alors** je la reçoit par email.
    
-
-**US-13 et US-14 — Remboursement**
-1. **Étant donné** un événement dans plus de 48 heures, **quand** je demande un remboursement, **alors** l'organisateur reçoit la demande.
-2. **Étant donné** un événement dans moins de 48 heures, **quand** j'ouvre ma commande, **alors** le bouton « Demander un remboursement » est désactivé, avec l'explication.
-3. **Étant donné** une demande approuvée, **quand** le remboursement est effectué chez Stripe, **alors** la commande passe à « remboursée », la place est libérée et je reçois un courriel.
-
-**US-21 — Etre averti avant la fin de l'essai**
-1. **Étant donné** un essai qui se termine dans trois jours **quand** le traitement quotidien s'exécute, **alors** je recois un courriel avec la date du premier prelevement et le montant avec un message d'avertissement a proposdu delai. 
-2. **Étant donné** que j'ai annule pendant l'essai, **quand** le traitement s'exécute **alors** continuer son abonnement jusqu'a la fin et empecher de reactiver l'essai.
+**US-19 — Appliquer un code promo**
+1. **Étant donné** un code valide de 10% **quand** je l'applique a un produit de 20,00 $ taxable **alors** le récapitulatif affiche le rabais de 2,00 $ et le prix du produit avant taxes 18,00 $ puis applique la TPS et la TVQ ce qui donne 20,70 $.
+2. **Étant donné** un code valide de 10% **quand** je l'applique a un produit de 20,00 $ non-taxable **alors** le récapitulatif affiche le rabais de 2,00 $ et le prix du produit avant taxes 18,00 $ puis applique la TPS et la TVQ à 0,00 $ ce qui donne 18,00 $.
+3. **Étant donné** un code expiré **quand** j'essai de l'appliquer a un produit **alors** on voit un message "Ce code a expiré" et le prix n'est pas modifié.
+4. **Étant donné** un code inexistant **quand** j'essaie d'appliquer a un produit **alors** on voit le message 'code invalide'.
+5. **Étant donné** qu'un code est deja appliqué **quand** je le saisis une seconde fois, **alors** le second est refusé (un seul code par commande).
+6. **Étant donné** un code dont le nombre maximal d'utilisations est atteint **quand** je l'applique, **alors** on voit un message 'Ce code n'est plus disponible' et le prix ne change pas.
+7. **Étant donné** un code valide **quand** je l'applique avec un email qui n'est pas dans la liste des "Amis du Rûcher", **alors** on voit un message 'Seul les Amis du Rûcher peuvent bénéficier de ce code' et le prix ne change pas.
+8. **Étant donné** un code valide **quand** je l'applique avec un email valide dans la liste des "Amis du Rûcher", **alors** le rabais est appliqué.
 
 
 ---
