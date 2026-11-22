@@ -263,7 +263,7 @@ flowchart LR
   Stripe([Stripe])
   Courriel([Service de courriel])
   subgraph Miel Sur Quévillon
-    
+    UC01((Consulter le catalogue))
     UC02((Acheter un produit))
     UC03((Demander un remboursement))
     UC04((Consulter mes achats))
