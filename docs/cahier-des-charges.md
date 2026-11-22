@@ -280,8 +280,8 @@ flowchart LR
   Client --- UC03
   Client --- UC04
   Administrateur --- UC06
-  Administrateur --- UC07
-  Administrateur --- UC08
+  Client --- UC07
+  Client --- UC08
   Administrateur --- UC10
   Administrateur --- UC12
   UC02 -. include .-> UC09
