@@ -240,50 +240,50 @@ Détail de l'achat de bonbons au miel : 800 × 0,09975 = 79,8 cents, arrondi à 
 
 | ID | Cas d'utilisation | Acteur principal | Acteurs secondaires | Relations |
 |---|---|---|---|---|
-| UC-01 | Consulter les événements | Visiteur | — | — |
-| UC-02 | Acheter un billet | Participant | Stripe, courriel | «include» UC-09 |
-| UC-03 | Demander un remboursement | Participant | — | — |
-| UC-04 | Consulter mes billets | Participant | — | — |
+| UC-01 | Consulter le cataloque | Visiteur | — | — |
+| UC-02 | Acheter un produit | Client | Stripe, courriel | «include» UC-09 |
+| UC-03 | Demander un remboursement | Client | — | — |
+| UC-04 | Consulter mes achats | Client | — | — |
 | UC-05 | Se connecter | Utilisateur | — | — |
-| UC-06 | Créer et publier un événement | Organisateur | — | — |
-| UC-07 | S'abonner au plan Pro | Organisateur | Stripe, courriel | «include» UC-09 |
-| UC-08 | Gérer mon abonnement | Organisateur | Stripe | — |
+| UC-06 | Créer et modifier le cataloque | Organisateur | — | — |
+| UC-07 | S'abonner aux amis du rucher | Client | Stripe, courriel | «include» UC-09 |
+| UC-08 | Gérer mon abonnement | Client | Stripe | — |
 | UC-09 | Payer en ligne | (inclus) | Stripe, courriel | — |
-| UC-10 | Rembourser un participant | Organisateur | Stripe | — |
-| UC-11 | Appliquer un code promo | Participant | — | «extend» UC-02 |
-| UC-12 | Consulter le tableau de bord | Organisateur | — | — |
+| UC-10 | Rembourser un client | Administrateur | Stripe | — |
+| UC-11 | Appliquer un code promo | Client | — | «extend» UC-02 |
+| UC-12 | Consulter le tableau de bord | Administrateur | — | — |
 
 **Généralisation :** Participant et Organisateur sont des sortes d'Utilisateur et héritent de UC-05 « Se connecter ».
 
 ```mermaid
 flowchart LR
   Visiteur([Visiteur])
-  Participant([Participant])
-  Organisateur([Organisateur])
+  Client([Client])
+  Administrateur([Administrateur])
   Stripe([Stripe])
   Courriel([Service de courriel])
-  subgraph SymposiQ
-    UC01((Consulter les événements))
-    UC02((Acheter un billet))
+  subgraph Miel Sur Quévillon
+    
+    UC02((Acheter un produit))
     UC03((Demander un remboursement))
-    UC04((Consulter mes billets))
-    UC06((Créer et publier un événement))
-    UC07((S'abonner au plan Pro))
+    UC04((Consulter mes achats))
+    UC06((Modifier le catalogue))
+    UC07((S'abonner aux amis du rucher))
     UC08((Gérer mon abonnement))
     UC09((Payer en ligne))
-    UC10((Rembourser un participant))
+    UC10((Rembourser un client))
     UC11((Appliquer un code promo))
     UC12((Consulter le tableau de bord))
   end
   Visiteur --- UC01
-  Participant --- UC02
-  Participant --- UC03
-  Participant --- UC04
-  Organisateur --- UC06
-  Organisateur --- UC07
-  Organisateur --- UC08
-  Organisateur --- UC10
-  Organisateur --- UC12
+  Client --- UC02
+  Client --- UC03
+  Client --- UC04
+  Administrateur --- UC06
+  Administrateur --- UC07
+  Administrateur --- UC08
+  Administrateur --- UC10
+  Administrateur --- UC12
   UC02 -. include .-> UC09
   UC07 -. include .-> UC09
   UC11 -. extend .-> UC02
