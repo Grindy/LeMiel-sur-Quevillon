@@ -640,15 +640,21 @@ Règles appliquées : RM-05 (période de grâce), RM-06 (ventes suspendues sans 
 
 Maquettes de moyenne fidélité du parcours d'achat. La page de paiement est hébergée par Stripe : elle n'est pas conçue par l'équipe, mais son montant doit être identique à celui du récapitulatif.
 
+[Maquette complète](maquettes/LMSQFull.png)
+
 ### 11.1 Abonnement Amis du Rûcher
 - Titre : « Explications du programme ».
 - Section détaillant l'offre: Supporter l'organisme, recevoir des nouvelles exclusives comme des offres promotionelles, des rabais, la possibilité de visiter le rûcher, être averti des prochaines arrivées de produits, tirages, etc...  3,00 $ par mois ; un champ pour inscrire son email et un bouton "Devenir un Ami du Rûcher".
 - Mention : « Prix avant taxes · Annulation en tout temps ».
 - Si un abonnement est déjà actif avec ce email, le bouton affiche plutôt "Gérer mon abonnement".
 
+![Abonnement](maquettes/LMSQAbonnement.png)
+
 ### 11.2 Catalogue
 - Titre : "Nos produits"
 - Cards des produits disponibles à la vente: Nom du produit, photo, description, format, prix unitaire avant taxes, saison, année, état du produit: en stock ou non. Chaque card comporte un sélecteur de quantité (- / +) et un bouton pour ajouter au panier. 
+  
+![Catalogue](maquettes/LMSQCatalogue.png)
 
 ### 11.3 Panier
 - Liste de produits sélectionnés pour l'achat et le détail de chacun: nom du produit, format, quantité dans le panier, saison, prix unitaire avant taxes.
@@ -656,6 +662,8 @@ Maquettes de moyenne fidélité du parcours d'achat. La page de paiement est hé
 - Champ « Code promo » et bouton « Appliquer ».
 - Récapitulatif : Sous-total 28,00 $ (exemple un paquet de bonbons taxable de 8$ et un pot de miel non taxable de 20$) · TPS (5 %(seulement sur produits taxables)) 0,40 $ · TVQ (9,975 % (seulement sur produits taxables)) 0,80 $ · **Total 29,20 $**.
 - Bouton « Payer 29,20 $ » ; mention « Paiement sécurisé par Stripe ».
+
+![Panier](maquettes/LMSQPanier.png)
 
 ### 11.4 Paiement (page Stripe)
 - Adresse `checkout.stripe.com`, nom « LeMiel-sur-Quévillon », montant 29,20 $.
@@ -667,6 +675,8 @@ Maquettes de moyenne fidélité du parcours d'achat. La page de paiement est hé
   - 1x Pot de miel, 1kg, automne 2026
   - 1x Bonbons au miel, 1pqt, automne 2026
 - Mention « Reçu envoyé par courriel ».
+  
+![Popup de confirmation](maquettes/LMSQConfirmation.png)
 
 ### 11.6 États d'erreur et états vides
 
@@ -678,6 +688,9 @@ Maquettes de moyenne fidélité du parcours d'achat. La page de paiement est hé
 | Carte refusée | Retour au récapitulatif, pop-up (fonds insuffisants, carte expirée…) et invitation à réessayer. | US-05 |
 | Paiement abandonné | Au retour sur le site : « Votre paiement n'a pas été finalisé. Le contenu de votre panier est réserver jusqu'à 15h20. » | RM-02 |
 | Code promo invalide | Un message est affiché sous le bouton "Appliquer" si le code promo est invalide
+
+![Carte refusée](maquettes/LMSQRefus.png)
+![Abandon du paiement](maquettes/LMSQAbandon.png)
 
 ---
 
