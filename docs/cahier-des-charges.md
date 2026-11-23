@@ -276,6 +276,7 @@ flowchart LR
     UC12((Consulter le tableau de bord))
   end
   Visiteur --- UC01
+  Visiteur --- UC02
   Client --- UC02
   Client --- UC03
   Client --- UC04
