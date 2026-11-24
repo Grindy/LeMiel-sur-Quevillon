@@ -1,13 +1,10 @@
 # Journal IA — LeMiel-sur-Quévillon
 
-Trace des sessions où une IA a contribué au projet : ce qui a été demandé,
-ce qui a été produit, et ce qui a été vérifié par un humain.
+Trace des sessions où une IA a contribué au projet : ce qui a été demandé, ce qui a été gardé, ce qui a été corrigé et pourquoi, et ce qui a été vérifié par un humain. La tenue de ce journal est une consigne de l'agent (voir `CLAUDE.md`, section « Journal d'utilisation de l'IA »).
 
----
-
-## 2026-11-21 — Migration technologique: adapter-neon -> PrismaPg
-- **Outil :** Claude (Opus 5.5)
-- **Demande :** Passer le projet en PrismaPg plutôt qu'utiliser l'adapteur neon
-- **Résultat :** Les dépendances à neon ont été supprimées, le code se rapportant a l'adapteur neon utilise maintenant PrismaPg.
-- **Décision :** package et prisma.ts mis à jour.
-- **Vérifié :** ✅ Conforme a ce qui a été vu en cours dans le projet symposiQ
+| Date | Membre | Outil | Demande | Gardé | Corrigé et pourquoi | Vérification |
+|---|---|---|---|---|---|---|
+| 2026-11-23 | Clément Laflamme | Claude Code (Opus 5.5) | Compléter le diagramme de classes commencé à la main (croquis), le faire valider par questions, puis remplir les sections 9.1 à 9.3 du cahier, générer le schéma Prisma et une version Mermaid dans `docs/classes.md`. | 10 classes (Utilisateur, Adresse, Panier, ProduitPanier, Produit, Commande, LigneCommande, CodePromo, Abonnement, EvenementWebhook), 6 énumérations en français, taxes stockées par ligne, `anonymiseLe` pour la Loi 25, seuil de taxes et courriel du livreur dans `.env`. | L'IA proposait des clients sans compte : **refusé**, le compte devient obligatoire pour tous (Clerk). Classe `Inventaire` du croquis fusionnée dans `Produit` (doublon avec `quantiteeRestante`). Adresse : table `Adresse` (1..n) choisie plutôt qu'une seule adresse sur le compte. Remboursements : **aucun** sur le site, seulement le statut `REMBOURSEE` synchronisé si un bénévole rembourse dans Stripe. Annulation d'abonnement à la fin de la période payée (contradiction US-12 / RM-09 tranchée). | ✅ Diagramme approuvé par Clément avant la génération. `prisma format` et `prisma validate` (Prisma 7.9.1) : schéma valide. Migration pas encore exécutée (`node_modules` non installé). |
+| 2026-11-23 | Clément Laflamme | Claude Code (Opus 5.5) | Adapter le cahier des charges, repris d'un projet de billetterie, en retirant les mentions de billets, d'événements, d'organisateur et de plan Pro. | Sections 3.4, 3.5, 4, 5, 6, 7, 10, 11.6 et 12 réécrites pour le miel et les Amis du Rûcher ; règles RM-01 à RM-17 révisées (ajout de RM-16 produits non taxables et RM-17 seuil de 30 000 $) ; matrice de traçabilité refaite. | Ajouts de l'IA à faire valider par l'équipe : `Commande.livraisonNom`, UC-13 « Créer un compte », nouvel irritant du persona Lynda, répartition des rôles A/B/C (section 12.2). | Recherche des termes « billet », « événement », « organisateur », « SymposiQ », « plan Pro », « étudiant » : aucune mention restante hors contexte. Relecture par Clément à compléter. |
+| 2026-11-23 | Clément Laflamme | Claude Code (Opus 5.5) | Remplacer les étiquettes des relations (« contient », « possède ») par les cardinalités dans `docs/classes.md`, puis extraire les diagrammes de séquence dans `docs/diagramme-sequence.md` avec un renvoi dans le cahier. | Étiquettes remplacées par les cardinalités ; deux diagrammes de séquence déplacés, section 10 du cahier remplacée par un lien et un tableau résumé. | — | Diagrammes copiés tels quels (lignes extraites du cahier, seuls les titres renumérotés) ; ligne orpheline laissée sous le tableau de la section 10 repérée et retirée. Rendu Mermaid à vérifier par Clément. |
+| 2026-11-23 | Clément Laflamme | Claude Code (Opus 5.5) | Ajouter à la configuration de l'agent la contrainte de tenir ce journal. | Section « Journal d'utilisation de l'IA (obligatoire) » ajoutée à `CLAUDE.md` avec les colonnes exigées ; journal converti en tableau. | La description du schéma Prisma dans `CLAUDE.md` (« aucun modèle ») était périmée : mise à jour. | Relecture du tableau : 7 colonnes exigées présentes, 4 entrées. |
