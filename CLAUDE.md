@@ -37,7 +37,27 @@ Aucun framework de tests n'est configuré.
 **Couche base de données (en cours) :**
 - `src/lib/prisma.ts` — `PrismaClient` singleton avec l'adaptateur `PrismaPg`, mis en cache sur `globalThis` hors production, marqué `import "server-only"` (ne l'importer que depuis des Server Components / server actions / route handlers, jamais depuis l'arborescence client de `page.tsx`).
 - `prisma.config.ts` — configuration Prisma 7 : lit `DATABASE_URL` depuis `.env` via `dotenv/config`; l'URL de la source de données est définie ici, pas dans `schema.prisma`.
-- `prisma/schema.prisma` ne contient présentement **aucun modèle** et utilise le générateur `prisma-client-js` (`.gitignore` prévoit déjà `/src/generated/prisma` pour le nouveau générateur `prisma-client`).
+- `prisma/schema.prisma` contient le modèle de données (10 modèles, 6 énumérations, noms en français) décrit dans `docs/classes.md` et à la section 9 de `docs/cahier-des-charges.md`; il utilise le générateur `prisma-client-js` (`.gitignore` prévoit déjà `/src/generated/prisma` pour le nouveau générateur `prisma-client`). Toute modification du schéma doit être reportée dans ces deux documents.
+
+## Journal d'utilisation de l'IA (obligatoire)
+
+Chaque session de travail avec une IA doit être consignée dans `docs/journal-ia.md`, **avant de terminer la tâche** (et avant tout commit qui inclut le travail de la session). Ajouter une ligne par demande significative au tableau du journal, avec les colonnes :
+
+| Colonne | Contenu |
+|---|---|
+| Date | AAAA-MM-JJ |
+| Membre | Le membre de l'équipe qui a fait la demande (nom de l'utilisateur git) |
+| Outil | L'outil et le modèle (ex. Claude Code, Opus 5.5) |
+| Demande | Ce qui a été demandé, en une ou deux phrases |
+| Gardé | Ce qui a été produit et conservé |
+| Corrigé et pourquoi | Ce que le membre a refusé, modifié ou tranché, et la raison; « — » si rien |
+| Vérification | Comment le résultat a été vérifié (commande exécutée, relecture, test) et par qui |
+
+Règles :
+- Ne consigner que les demandes qui produisent ou modifient un livrable (code, schéma, documents du projet). Les petits diagnostics, questions ponctuelles et problèmes d'environnement local (ex. extension VS Code) ne sont pas consignés.
+- Ne jamais inventer une vérification : n'écrire que ce qui a réellement été exécuté ou confirmé par le membre.
+- Ne pas réécrire ni supprimer les entrées existantes; seulement en ajouter.
+- Les entrées sont en ordre chronologique, la plus récente en bas.
 
 ## Environnement
 
