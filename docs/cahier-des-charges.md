@@ -251,6 +251,7 @@ Détail de l'achat de bonbons au miel : 800 × 0,09975 = 79,8 cents, arrondi à 
 | UC-11 | Appliquer un code promo | Client | — | «extend» UC-02 |
 | UC-12 | Consulter le tableau de bord | Administrateur | — | — |
 | UC-13 | Créer un compte | Visiteur | — | — |
+| UC-14 | Gérer mon profil (informations, adresses, suppression des données) | Client | — | — |
 
 UC-03 (Demander un remboursement) et UC-10 (Rembourser un client) ont été retirés en version 1.1 : aucun remboursement n'est offert sur le site.
 
@@ -275,6 +276,7 @@ flowchart LR
     UC11((Appliquer un code promo))
     UC12((Consulter le tableau de bord))
     UC13((Créer un compte))
+    UC14((Gérer mon profil))
   end
   Visiteur --- UC01
   Visiteur --- UC13
@@ -283,6 +285,7 @@ flowchart LR
   Client --- UC04
   Client --- UC07
   Client --- UC08
+  Client --- UC14
   Administrateur --- UC05
   Administrateur --- UC06
   Administrateur --- UC12
@@ -364,8 +367,13 @@ Tailles : **S** (petite, moins d'une journée), **M** (moyenne, deux ou trois jo
 | US-11 | client | m'abonner au plan "Amis du Rûcher", afin de soutenir un projet local. | Must | M |
 | US-12 | client | gérer mon abonnement (carte, annulation) dans un portail (Stripe), afin de ne pas écrire au support. | Must | S |
 | US-13 | client | être averti quand mon paiement mensuel échoue, afin de mettre ma carte à jour à temps. | Must | S |
+| US-24 | visiteur | créer un compte en quelques champs ou avec mon compte Google, afin de pouvoir acheter ou m'abonner sans démarche compliquée. | Must | S |
+| US-25 | client | gérer mes adresses de livraison (ajouter, modifier, supprimer, choisir celle par défaut), afin de ne pas les ressaisir à chaque commande. | Must | S |
 | US-16 | administrateur | voir les revenus de l'année combinés et par produit | Should | M |
 | US-17 | administrateur | que le premier 30000$ de ventes brut exclue les taxes (valent 0$). | Should | M |
+| US-26 | client | consulter et modifier mes informations personnelles dans un espace client, afin que les bénévoles puissent me joindre pour la livraison. | Should | S |
+| US-27 | client | consulter l'historique de mes commandes et le détail de chacune, afin de retrouver un achat ou de fournir une pièce justificative à mon organisation. | Should | M |
+| US-28 | client | demander la suppression de mes données personnelles, afin d'exercer les droits que me donne la Loi 25. | Should | M |
 | US-18 | client | recevoir des communications et des offres exclusives en tant qu'Ami du Rûcher, afin de retirer une certaine valeur de mon abonnement mensuel. | Could | M |
 | US-19 | client | appliquer une promotion sur ma commande, afin de profiter d'un rabais offert par mon statut d'Ami du Rûcher. | Could | M |
 | US-14 | client | demander un remboursement, afin de récupérer mon argent si il y a eu un problème avec ma commande. | Won't | — |
@@ -375,7 +383,7 @@ Tailles : **S** (petite, moins d'une journée), **M** (moyenne, deux ou trois jo
 | US-22 | administrateur | ouvrir la vente de certains produits aux Amis du Rûcher en primeur (prévente), afin de donner une valeur supplémentaire à leur abonnement | Won't | — |
 | US-23 | administrateur | une version anglais du site, afin de servir d'éventuels clients anglophones | Won't | — |
 
-Les **Must** (US-01 à US-13) représentent environ 60 % de l'effort estimé ; ils couvrent les deux modèles de paiement.
+Les **Must** (US-01 à US-13, US-24 et US-25) représentent environ 60 % de l'effort estimé ; ils couvrent les deux modèles de paiement.
 
 ### 6.2 Critères d'acceptation
 
@@ -448,6 +456,22 @@ Les **Must** (US-01 à US-13) représentent environ 60 % de l'effort estimé ; i
 2. **Étant donné** un abonnement en retard, **quand** je mets ma carte à jour et que le paiement passe, **alors** le statut redevient actif.
 3. **Étant donné** un abonnement en retard, **quand** toutes les relances échouent, **alors** mon compte est retiré de la liste des "Amis du Rûcher" et je ne reçois plus d'offres et de communications de la mielerie.
 
+**US-24 — Créer un compte**
+1. **Étant donné** que je ne suis pas connecté, **quand** je crée un compte avec mon prénom, mon nom, mon courriel et un mot de passe, **alors** mon compte est créé avec le rôle client et je suis connecté.
+2. **Étant donné** que je ne suis pas connecté, **quand** je crée un compte avec Google, **alors** mon prénom, mon nom et mon courriel sont repris de Google et aucun autre champ n'est exigé.
+3. **Étant donné** un courriel déjà associé à un compte, **quand** je crée un compte avec ce courriel, **alors** je vois « Un compte existe déjà avec ce courriel » et je suis invité à me connecter.
+4. **Étant donné** que j'ai été invité à créer un compte en ajoutant un produit au panier (US-02), **quand** la création est terminée, **alors** je reviens à la page où j'étais.
+5. **Étant donné** un nouveau compte créé chez Clerk, **quand** le système enregistre l'utilisateur, **alors** une seule fiche `Utilisateur` est créée (`clerkId` unique), même si l'événement de création est reçu deux fois.
+
+**US-25 — Gérer mes adresses de livraison**
+1. **Étant donné** que je suis connecté, **quand** j'ajoute une adresse à Lebel-sur-Quévillon avec le code postal « j0y1x0 », **alors** elle est enregistrée avec le code postal normalisé « J0Y 1X0 » (RM-03).
+2. **Étant donné** que je suis connecté, **quand** j'ajoute une adresse hors de Lebel-sur-Quévillon, **alors** elle est refusée avec le message « Seules les commandes locales sont acceptées, nous sommes désolés des inconvénients. »
+3. **Étant donné** que je n'ai aucune adresse, **quand** j'ajoute ma première adresse, **alors** elle devient mon adresse par défaut.
+4. **Étant donné** plusieurs adresses, **quand** j'en choisis une autre comme adresse par défaut, **alors** l'ancienne ne l'est plus (une seule adresse par défaut).
+5. **Étant donné** une adresse par défaut, **quand** j'ouvre mon panier, **alors** elle est présélectionnée comme adresse de livraison.
+6. **Étant donné** une adresse utilisée par une commande passée, **quand** je la modifie ou la supprime, **alors** la commande conserve l'adresse copiée au moment de l'achat (RM-07).
+7. **Étant donné** l'identifiant d'une adresse d'un autre client, **quand** j'essaie de la consulter, de la modifier ou de la supprimer, **alors** l'action est refusée (RM-08).
+
 **US-16 — Voir les revenus de l'année combinés et par produit**
 1. **Étant donné** la fin de l'année 2026, **quand** je sors les statistiques de ventes pour l'année, **alors** je vois un rapport sous forme de liste détaillant sur chaque ligne le nom du produit, son format, le nombre vendu pour l'année, le prix unitaire, le prix total brut de tous les exemplaires vendus, si applicable la TPS et la TVQ appliquée au prix total brut de tous les exemplaires vendus. La dernière ligne donne le total des taxes récoltées pour la TPS et la TVQ ainsi que le total brut de tous les produits vendus dans l'année en dollars.
 2. **Étant donné** une année passée, **quand** je choisis l'an 2026, **alors** je vois un rapport pour les ventes faites du 1er janvier 2026 au 31 décembre 2026.
@@ -460,6 +484,27 @@ Les **Must** (US-01 à US-13) représentent environ 60 % de l'effort estimé ; i
 1. **Étant donné** l'OBNL a vendu 10000 $ brut dans l'année courante avant la transaction, **quand** le récapitulatif du client est affiché **alors** le montant de la TPS et de la TVQ indique 0,00 $ peu importe le statut taxable des items.
 2. **Étant donné** l'OBNL a vendu 30000 $ brut dans l'année courante avant la transaction, **quand** le récapitulatif du client est affiché **alors** le montant de la TPS et de la TVQ est calculé et affiché, selon le statut taxable des items dans son panier.
 3. **Étant donné** l'OBNL a vendu 29999 $ brut dans l'année courante avant la transaction, **quand** la commande du client fait excéder la limite de 30000 $ après sa transaction **alors** le montant de la TPS et de la TVQ est calculé et affiché, selon le statut taxable des items dans son panier.
+
+**US-26 — Consulter et modifier mes informations personnelles**
+1. **Étant donné** que je suis connecté, **quand** j'ouvre « Mon compte », **alors** je vois mes informations personnelles (prénom, nom, courriel, téléphone), mes adresses de livraison, un lien vers l'historique de mes commandes et l'état de mon abonnement aux Amis du Rûcher (avec le bouton « Gérer mon abonnement » ou « Devenir un Ami du Rûcher »).
+2. **Étant donné** que je suis connecté, **quand** je modifie mon prénom, mon nom ou mon téléphone, **alors** les changements sont enregistrés et utilisés pour mes prochaines commandes ; mes commandes passées ne changent pas (RM-07).
+3. **Étant donné** un prénom ou un nom vide, **quand** j'enregistre, **alors** un message indique le champ invalide.
+4. **Étant donné** un numéro de téléphone qui ne contient pas 10 chiffres, **quand** j'enregistre, **alors** un message indique le champ invalide.
+5. **Étant donné** que je change mon courriel, **quand** j'enregistre, **alors** un code de vérification est envoyé à la nouvelle adresse (Clerk) et le courriel n'est remplacé qu'après la vérification.
+6. **Étant donné** que je ne suis pas connecté, **quand** j'ouvre « Mon compte », **alors** je suis redirigé vers la page de connexion.
+
+**US-27 — Consulter l'historique de mes commandes**
+1. **Étant donné** que j'ai passé des commandes, **quand** j'ouvre « Mes commandes », **alors** je vois toutes mes commandes, de la plus récente à la plus ancienne, avec le numéro, la date, le nombre de produits, le total et le statut.
+2. **Étant donné** des commandes en attente, payées, annulées ou remboursées, **quand** j'ouvre « Mes commandes », **alors** chacune apparaît avec un libellé clair de son statut (« En attente de paiement », « Payée », « Annulée — paiement non finalisé », « Remboursée »).
+3. **Étant donné** une commande payée, **quand** j'en ouvre le détail, **alors** je vois chaque produit (nom, format, saison, année, quantité, prix unitaire), le rabais, la TPS, la TVQ, le total et l'adresse de livraison, tels qu'au moment de l'achat, même si le produit a été modifié depuis (RM-07).
+4. **Étant donné** que je n'ai passé aucune commande, **quand** j'ouvre « Mes commandes », **alors** je vois « Vous n'avez pas encore passé de commande » et un lien vers le catalogue.
+5. **Étant donné** le numéro d'une commande d'un autre client, **quand** j'essaie d'en ouvrir le détail, **alors** l'accès est refusé (RM-08).
+
+**US-28 — Demander la suppression de mes données personnelles**
+1. **Étant donné** que je suis connecté, **quand** je demande la suppression de mes données, **alors** un avertissement m'explique que l'action est irréversible et que mes commandes sont conservées pour la comptabilité, et je dois confirmer.
+2. **Étant donné** que j'ai confirmé, **quand** la demande est traitée, **alors** mon prénom, mon nom, mon courriel et mon téléphone sont remplacés par des valeurs neutres, mes adresses et mon panier sont supprimés, mon compte Clerk est supprimé, `anonymiseLe` est rempli et je suis déconnecté (ENF-05).
+3. **Étant donné** un abonnement aux Amis du Rûcher actif ou en retard, **quand** je confirme la suppression, **alors** l'abonnement est annulé immédiatement chez Stripe, sans remboursement de la période en cours.
+4. **Étant donné** un compte anonymisé, **quand** l'administrateur sort le rapport annuel (US-16), **alors** les commandes payées de ce compte sont toujours comptées.
 
 **US-18 — Recevoir des communications et des offres exclusives en tant qu'Ami du Rûcher**
 1. **Étant donné** que je suis un membre valide des Amis du Rûcher **quand** une promotion est envoyée par email à la liste des Amis du Rûcher, **alors** je la reçoit par email.
@@ -645,7 +690,9 @@ Maquettes de moyenne fidélité du parcours d'achat. La page de paiement est hé
 | Carte refusée | Retour au récapitulatif, pop-up (fonds insuffisants, carte expirée…) et invitation à réessayer. | US-05 |
 | Paiement abandonné | Au retour sur le site : « Votre paiement n'a pas été finalisé. Le contenu de votre panier est réservé jusqu'à 15h20. » | RM-02, US-02 |
 | Code promo invalide | Un message est affiché sous le bouton "Appliquer" si le code promo est invalide, expiré, épuisé ou réservé aux Amis du Rûcher. | RM-06, RM-10, US-19 |
-| Adresse hors zone | « Seules les commandes locales sont acceptées, nous sommes désolés des inconvénients. » | RM-03, US-06 |
+| Adresse hors zone | « Seules les commandes locales sont acceptées, nous sommes désolés des inconvénients. » | RM-03, US-06, US-25 |
+| Aucune commande | « Vous n'avez pas encore passé de commande » et un lien vers le catalogue. | US-27 |
+| Courriel déjà utilisé | « Un compte existe déjà avec ce courriel » et un lien vers la connexion. | US-24 |
 
 ![Carte refusée](maquettes/LMSQRefus.png)
 ![Abandon du paiement](maquettes/LMSQAbandon.png)
@@ -671,9 +718,9 @@ Maquettes de moyenne fidélité du parcours d'achat. La page de paiement est hé
 
 | Membre | Rôle principal | Stories et règles sous sa responsabilité |
 |---|---|---|
-| A | Données et back-end | Modèle de données, transactions (RM-01, RM-02), calcul des taxes (RM-13, RM-16, RM-17), US-01, US-08, US-09, US-10, US-16, US-17. |
-| B | Interface et expérience | Maquettes, pages catalogue, panier, récapitulatif, Amis du Rûcher et tableau de bord ; états d'erreur ; accessibilité (ENF-08) ; US-03, US-06, US-19. |
-| C | Paiement et sécurité | Comptes (Clerk), Stripe Checkout, abonnements, webhooks (RM-14, RM-15), courriels ; sécurité (ENF-02 à ENF-04) ; US-02, US-04, US-05, US-07, US-11, US-12, US-13, US-18. |
+| A | Données et back-end | Modèle de données, transactions (RM-01, RM-02), calcul des taxes (RM-13, RM-16, RM-17), US-01, US-08, US-09, US-10, US-16, US-17, US-27. |
+| B | Interface et expérience | Maquettes, pages catalogue, panier, récapitulatif, Amis du Rûcher, espace client et tableau de bord ; états d'erreur ; accessibilité (ENF-08) ; US-03, US-06, US-19, US-25, US-26. |
+| C | Paiement et sécurité | Comptes (Clerk), Stripe Checkout, abonnements, webhooks (RM-14, RM-15), courriels ; sécurité (ENF-02 à ENF-04) ; confidentialité (ENF-05) ; US-02, US-04, US-05, US-07, US-11, US-12, US-13, US-18, US-24, US-28. |
 
 Chaque membre fait des commits réguliers, référencés par l'identifiant de la story (par exemple `feat: US-02 créer la session Checkout`). Une revue de code par un autre membre est exigée avant chaque fusion dans la branche principale.
 
@@ -697,6 +744,11 @@ Chaque membre fait des commits réguliers, référencés par l'identifiant de la
 | US-16 | UC-12 | RM-04, RM-08 | Rapport 2026 : totaux par produit égaux à la somme des lignes payées ; commandes remboursées exclues. |
 | US-17 | UC-02 | RM-17 | Tests unitaires : 10 000 $ → taxes à 0 ; 29 999 $ + commande qui dépasse → taxes calculées. |
 | US-19 | UC-11 | RM-06, RM-10 | Code appliqué une fois : rabais ; seconde fois : refusé ; compte non Ami : refusé. |
+| US-24 | UC-13 | — | Création par courriel et par Google : rôle CLIENT ; événement de création rejoué deux fois : une seule fiche `Utilisateur`. |
+| US-25 | UC-14 | RM-03, RM-07, RM-08 | « j0y1x0 » enregistré en « J0Y 1X0 », autre code postal refusé ; une seule adresse par défaut ; adresse d'un autre client refusée. |
+| US-26 | UC-14 | RM-07, RM-08 | Modification du téléphone : nouvelle commande avec le nouveau numéro, ancienne commande inchangée ; page « Mon compte » inaccessible sans connexion. |
+| US-27 | UC-04 | RM-07, RM-08 | Commande d'un autre client refusée ; détail identique au reçu après un changement de prix du produit ; commandes des quatre statuts affichées avec leur libellé. |
+| US-28 | UC-14 | RM-04, RM-09 | Compte anonymisé : données personnelles neutres, adresses supprimées, commandes toujours dans le rapport annuel ; abonnement annulé chez Stripe. |
 
 ---
 
