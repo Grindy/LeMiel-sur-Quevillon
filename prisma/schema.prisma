@@ -1,7 +1,241 @@
+// Schéma de données — LeMiel-sur-Quévillon
+// Diagramme de classes : docs/classes.md · Cahier des charges : section 9
+// Tous les montants sont en cents (Int). Aucune valeur à virgule pour l'argent.
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+// ─── Énumérations ────────────────────────────────────────────────────────────
+
+enum Role {
+  CLIENT
+  ADMINISTRATEUR
+}
+
+enum StatutProduit {
+  BROUILLON // créé, pas encore visible dans le catalogue
+  EN_STOCK // publié et achetable
+  EPUISE // publié, quantiteDisponible = 0 (voir epuiseLe)
+}
+
+enum StatutTaxe {
+  TAXABLE
+  NON_TAXABLE // produit d'épicerie (RM-16)
+}
+
+enum Saison {
+  PRINTEMPS
+  ETE
+  AUTOMNE
+  HIVER
+}
+
+enum StatutCommande {
+  EN_ATTENTE // session Stripe ouverte, stock réservé 30 min (RM-02)
+  PAYEE // webhook checkout.session.completed reçu (RM-15)
+  ANNULEE // session expirée ou abandonnée, stock libéré
+  REMBOURSEE // remboursement manuel dans Stripe, synchronisé par charge.refunded (RM-04)
+}
+
+// Reflète le statut Stripe de l'abonnement (aucune période d'essai).
+enum StatutAbonnement {
+  ACTIF // active
+  EN_RETARD // past_due — période de grâce de 7 jours (RM-05)
+  IMPAYE // unpaid
+  ANNULE // canceled
+  INCOMPLET // incomplete / incomplete_expired
+}
+
+// ─── Comptes ─────────────────────────────────────────────────────────────────
+
+model Utilisateur {
+  id               String    @id @default(cuid())
+  clerkId          String?   @unique // null une fois le compte anonymisé
+  prenom           String
+  nom              String
+  courriel         String    @unique // remplacé par une valeur neutre à l'anonymisation
+  telephone        String?
+  role             Role      @default(CLIENT)
+  stripeCustomerId String?   @unique
+  anonymiseLe      DateTime? // Loi 25 (ENF-05) : date de suppression des données personnelles
+  creeLe           DateTime  @default(now())
+  modifieLe        DateTime  @updatedAt
+
+  adresses   Adresse[]
+  panier     Panier?
+  commandes  Commande[]
+  abonnement Abonnement?
+}
+
+model Adresse {
+  id            String   @id @default(cuid())
+  utilisateurId String
+  ligne1        String // numéro civique et rue
+  ligne2        String? // appartement, etc.
+  ville         String
+  province      String   @default("QC")
+  codePostal    String // normalisé « J0Y 1X0 » (RM-03)
+  parDefaut     Boolean  @default(false)
+  creeLe        DateTime @default(now())
+
+  utilisateur Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  commandes   Commande[]
+
+  @@index([utilisateurId])
+}
+
+// ─── Catalogue et panier ─────────────────────────────────────────────────────
+
+model Produit {
+  id                 String        @id @default(cuid())
+  nom                String
+  description        String
+  format             String // ex. « 500 g », « 1 paquet »
+  prixEnCents        Int
+  quantiteDisponible Int // décrémentée dans la même transaction que la commande (RM-01)
+  saison             Saison
+  annee              Int
+  imageUrl           String?
+  statutTaxe         StatutTaxe    @default(TAXABLE)
+  statut             StatutProduit @default(BROUILLON)
+  epuiseLe           DateTime? // masqué du catalogue 30 jours après l'épuisement (RM-11)
+  creeLe             DateTime      @default(now())
+  modifieLe          DateTime      @updatedAt
+
+  lignesPanier   ProduitPanier[]
+  lignesCommande LigneCommande[]
+
+  @@index([statut])
+}
+
+model Panier {
+  id            String   @id @default(cuid())
+  utilisateurId String   @unique
+  creeLe        DateTime @default(now())
+  modifieLe     DateTime @updatedAt
+
+  utilisateur Utilisateur     @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  lignes      ProduitPanier[]
+}
+
+model ProduitPanier {
+  panierId  String
+  produitId String
+  quantite  Int
+  ajouteLe  DateTime @default(now())
+
+  panier  Panier  @relation(fields: [panierId], references: [id], onDelete: Cascade)
+  produit Produit @relation(fields: [produitId], references: [id], onDelete: Cascade)
+
+  @@id([panierId, produitId])
+  @@index([produitId])
+}
+
+// ─── Commandes ───────────────────────────────────────────────────────────────
+
+model Commande {
+  id            String         @id @default(cuid())
+  numero        Int            @unique @default(autoincrement()) // « Commande n° 12 »
+  utilisateurId String
+  adresseId     String?
+  codePromoId   String?
+  statut        StatutCommande @default(EN_ATTENTE)
+
+  // Copie de l'adresse de livraison au moment de l'achat (snapshot)
+  livraisonNom        String
+  livraisonTelephone  String
+  livraisonLigne1     String
+  livraisonLigne2     String?
+  livraisonVille      String
+  livraisonCodePostal String
+
+  // Totaux = somme des lignes (taxes calculées par ligne, RM-13)
+  sousTotalEnCents Int
+  rabaisEnCents    Int @default(0)
+  tpsEnCents       Int @default(0)
+  tvqEnCents       Int @default(0)
+  totalEnCents     Int
+
+  stripeCheckoutSessionId String?   @unique
+  stripePaymentIntentId   String?   @unique
+  expireLe                DateTime // fin de la réservation de 30 min (RM-02)
+  payeeLe                 DateTime?
+  creeLe                  DateTime  @default(now())
+
+  utilisateur Utilisateur     @relation(fields: [utilisateurId], references: [id], onDelete: Restrict)
+  adresse     Adresse?        @relation(fields: [adresseId], references: [id], onDelete: SetNull)
+  codePromo   CodePromo?      @relation(fields: [codePromoId], references: [id], onDelete: SetNull)
+  lignes      LigneCommande[]
+
+  @@index([utilisateurId])
+  @@index([statut, payeeLe])
+}
+
+// Snapshot du produit au moment de l'achat (RM-07)
+model LigneCommande {
+  id                  String     @id @default(cuid())
+  commandeId          String
+  produitId           String
+  quantite            Int
+  prixUnitaireEnCents Int
+  nomProduit          String
+  formatProduit       String
+  saison              Saison
+  annee               Int
+  statutTaxe          StatutTaxe
+  rabaisEnCents       Int        @default(0)
+  tpsEnCents          Int        @default(0)
+  tvqEnCents          Int        @default(0)
+
+  commande Commande @relation(fields: [commandeId], references: [id], onDelete: Cascade)
+  produit  Produit  @relation(fields: [produitId], references: [id], onDelete: Restrict)
+
+  @@index([commandeId])
+  @@index([produitId])
+}
+
+model CodePromo {
+  id              String   @id @default(cuid())
+  code            String   @unique
+  pourcentage     Int // 1 à 100
+  expireLe        DateTime
+  utilisationsMax Int? // null = illimité
+  utilisations    Int      @default(0)
+  reserveAmis     Boolean  @default(true) // réservé aux Amis du Rûcher
+  actif           Boolean  @default(true)
+  creeLe          DateTime @default(now())
+
+  commandes Commande[]
+}
+
+// ─── Abonnement « Amis du Rûcher » ───────────────────────────────────────────
+
+// Une seule ligne par utilisateur, mise à jour lors d'un réabonnement.
+model Abonnement {
+  id                   String           @id @default(cuid())
+  utilisateurId        String           @unique
+  stripeSubscriptionId String           @unique
+  stripePriceId        String
+  statut               StatutAbonnement
+  finPeriodeCourante   DateTime
+  annuleFinPeriode     Boolean          @default(false) // annulation effective à la fin de la période payée (RM-09)
+  graceJusquA          DateTime? // fin de la période de grâce de 7 jours (RM-05)
+  creeLe               DateTime         @default(now())
+  modifieLe            DateTime         @updatedAt
+
+  utilisateur Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+}
+
+// ─── Webhooks ────────────────────────────────────────────────────────────────
+
+// Idempotence : un événement Stripe n'est traité qu'une fois (RM-14)
+model EvenementWebhook {
+  id     String   @id // identifiant de l'événement Stripe (evt_...)
+  type   String
+  recuLe DateTime @default(now())
 }
